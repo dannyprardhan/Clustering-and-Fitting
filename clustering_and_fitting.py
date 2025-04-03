@@ -4,7 +4,6 @@ Student Name: Prardhan Mushke
 Student ID: 24069965 
 """
 
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -18,33 +17,31 @@ from scipy.optimize import curve_fit
 sns.set_theme(style="whitegrid", palette="husl")
 plt.style.use('ggplot')  # Fallback style
 
-def load_and_prepare_data():
-    """
-    Load and prepare GDP data for analysis.
-    Returns a cleaned DataFrame with GDP per capita data.
-    
-    Returns:
-        pd.DataFrame: Processed DataFrame with columns 'Country', 'Year', 'GDP_per_capita'
-    """
-    try:
-        # Load data (in practice, use your data.csv or download as shown previously)
-        df = pd.read_csv('data.csv')
-        
-        # Clean data - these steps will depend on your actual data structure
-        df = df.melt(id_vars=['Country'], var_name='Year', value_name='GDP_per_capita')
-        df['Year'] = pd.to_numeric(df['Year'])
-        df = df.dropna()
-        
-        return df
-    
-    except FileNotFoundError:
-        # Fallback to World Bank data if data.csv doesn't exist
-        print("data.csv not found, using sample World Bank data")
-        url = "https://raw.githubusercontent.com/datasets/gdp/master/data/gdp-per-capita.csv"
-        df = pd.read_csv(url)
-        df.columns = ['Country', 'Year', 'GDP_per_capita']
-        return df[df['Year'] >= 2000].dropna()
 
+def load_and_prepare_data():
+    try:
+        df = pd.read_csv('data.csv')
+        if len(df.columns) == 1:  # Raw numbers
+            df = pd.DataFrame({
+                'Country': ['SampleCountry']*len(df),
+                'Year': range(2000, 2000+len(df)),
+                'GDP_per_capita': df.iloc[:, 0]
+            })
+        else:  # Proper CSV
+            df.columns = ['Country', 'Year', 'GDP_per_capita']
+        
+        df['Year'] = pd.to_numeric(df['Year'], errors='coerce')
+        df['GDP_per_capita'] = pd.to_numeric(df['GDP_per_capita'], errors='coerce')
+        return df.dropna()
+    
+    except Exception as e:
+        print(f"Using fallback data (error: {str(e)})")
+        return pd.DataFrame({
+            'Country': ['US', 'UK', 'China', 'India', 'Germany'],
+            'Year': [2020, 2020, 2020, 2020, 2020],
+            'GDP_per_capita': [65298, 40285, 10434, 1900, 46433]
+        })
+                
 def create_relational_plot(data):
     """
     Create a relational plot (line plot) showing GDP trends.

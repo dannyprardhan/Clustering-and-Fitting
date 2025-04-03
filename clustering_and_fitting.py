@@ -15,8 +15,8 @@ from sklearn.preprocessing import StandardScaler
 from scipy.optimize import curve_fit
 
 # Set consistent styling for all plots
-plt.style.use('seaborn-v0_8')
-sns.set_palette("husl")
+sns.set_theme(style="whitegrid", palette="husl")
+plt.style.use('ggplot')  # Fallback style
 
 def load_and_prepare_data():
     """
